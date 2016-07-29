@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ProcessFileCommand implements Command {
 
     private final String arg;
-    private final String[] params;
     private final FileInputStream fileInputStream;
     private final Executor executor;
     private final ConcurrentHashMap<Long, TitleInfo> idToTitleMap;
@@ -27,7 +26,6 @@ public class ProcessFileCommand implements Command {
             throw new IllegalArgumentException("Not sufficient arguments");
         }
         this.arg = arg;
-        this.params = params;
         this.fileInputStream = new FileInputStream(params[1]);
         this.executor = executor;
         this.idToTitleMap = idToTitleMap;
