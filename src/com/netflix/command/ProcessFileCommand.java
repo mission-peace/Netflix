@@ -40,16 +40,24 @@ public class ProcessFileCommand implements Command {
     public void execute() {
         TitleFileIterator titleFileIterator = new TitleFileIterator(fileInputStream);
         executor.execute(() -> {
-            while (titleFileIterator.hasNext()) {
-                TitleInfo titleInfo = titleFileIterator.next();
-                Boolean exists = uniqueTitles.putIfAbsent(titleInfo.getFullTitle(), true);
-                if (exists != null) {
-                    continue;
+            try {
+                while (titleFileIterator.hasNext()) {
+                    TitleInfo titleInfo = titleFileIterator.next();
+                    Boolean exists = uniqueTitles.putIfAbsent(titleInfo.getFullTitle(), true);
+                    if (exists != null) {
+                        continue;
+                    }
+                    long id = titleCounter.getAndIncrement();
+                    idToTitleMap.put(id, titleInfo);
+                    for (String token : titleInfo.getTokens()) {
+                        prefixMatcher.insert(token, id);
+                    }
                 }
-                long id = titleCounter.getAndIncrement();
-                idToTitleMap.put(id, titleInfo);
-                for (String token : titleInfo.getTokens()) {
-                    prefixMatcher.insert(token, id);
+            } finally {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    System.err.print("Exception when closing stream " + e);
                 }
             }
         });
