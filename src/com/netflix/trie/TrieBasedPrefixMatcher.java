@@ -15,14 +15,15 @@ public class TrieBasedPrefixMatcher implements PrefixMatcher {
 
     private class TrieNode {
         private final ConcurrentMap<Character, TrieNode> children;
-        private final Set<Long> set;
+        //this set is backed up by concurrentHashMap so it is threadsafe to put/iterate through this set.
+        private final Set<Long> ids;
         public TrieNode() {
             children = new ConcurrentHashMap<>();
-            set = Collections.newSetFromMap(new ConcurrentHashMap<>());
+            ids = Collections.newSetFromMap(new ConcurrentHashMap<>());
         }
 
         public void add(Long id) {
-            set.add(id);
+            ids.add(id);
         }
     }
 
@@ -69,7 +70,7 @@ public class TrieBasedPrefixMatcher implements PrefixMatcher {
             return;
         }
 
-        Iterator<Long> iterator = current.set.iterator();
+        Iterator<Long> iterator = current.ids.iterator();
         while (limit > result.size() && iterator.hasNext())  {
             result.add(iterator.next());
         }
